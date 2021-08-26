@@ -19,7 +19,6 @@ namespace AirQualityMonitor.Pages
 
         public void OnGet()
         {
-
         }
     }
 }

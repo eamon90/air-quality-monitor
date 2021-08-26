@@ -1,23 +1,31 @@
+using AirQualityMonitor.Services;
+using AirQualityMonitor.Services.Helpers;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace AirQualityMonitor
 {
     public class Program
     {
-        public static void Main(string[] args)
+        private static readonly LogHelper _log = new LogHelper();
+
+        public static void Main()
         {
-            CreateHostBuilder(args).Build().Run();
+            _log.Info("Starting AirQualityMonitor web app");
+            try
+            {
+                CreateHostBuilder().Build().Run();
+            }
+            catch (Exception ex)
+            {
+                _log.Error(ex.Message, ex.StackTrace);
+                throw;
+            }
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
+        public static IHostBuilder CreateHostBuilder() =>
+            Host.CreateDefaultBuilder()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();

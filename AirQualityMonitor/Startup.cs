@@ -24,6 +24,7 @@ namespace AirQualityMonitor
             services.AddServerSideBlazor();
             services.AddTransient<ApiCaller>();
             services.AddTransient<CountryService>();
+            services.AddTransient<CityService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

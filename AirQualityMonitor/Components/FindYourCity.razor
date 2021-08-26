@@ -1,22 +1,41 @@
 ﻿@using AirQualityMonitor.Models
 @using AirQualityMonitor.Services
+@using Microsoft.AspNetCore.Components.Web
 @inject CountryService CountryService
+@inject CityService CityService
 
 <label for="countries">Select your country:</label>
-<select name="countries" id="countries" @onchange="(e => SelectCountry(e.Value))">
-    <option value="---">---</option>
+<select name="countries" id="countries" @onchange="(e => SelectCountry(e.Value.ToString()))">
+    <option value="null">---</option>
     @foreach (var country in CountryService.GetAllCountries())
     {
         <option value="@country.Code">@country.Name</option>
     }
 </select>
 
+@if (selectedCountry != null)
+{
+    @foreach (var city in citiesForSelectedCountry)
+    {
+        <p>@city.Name</p>
+    }
+}
+
 @code {
     Country selectedCountry;
+    List<City> citiesForSelectedCountry;
 
     void SelectCountry(string code)
     {
-        selectedCountry = CountryService.GetAllCountries().First(c => c.Code.Equals(code));
-        
+        if (code.Equals("null"))
+        {
+            selectedCountry = null;
+            citiesForSelectedCountry = null;
+        }
+        else
+        {
+            selectedCountry = CountryService.GetAllCountries().First(c => c.Code.Equals(code));
+            citiesForSelectedCountry = CityService.GetAllCitiesFor(selectedCountry.Code);
+        }
     }
 }

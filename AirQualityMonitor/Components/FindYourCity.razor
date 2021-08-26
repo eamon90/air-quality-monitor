@@ -4,6 +4,7 @@
 @using Microsoft.Extensions.Configuration
 @inject CountryService CountryService
 @inject CityService CityService
+@inject MeasurementService MeasurementService
 @inject IConfiguration Configuration
 
 <label for="countries">Select your country:</label>
@@ -19,18 +20,16 @@
 {
     if (selectedCountry.Cities > 0)
     {
+        <h2>Choose your city:</h2>
         <table>
-            <tr>
-                <td>Choose your city:</td>
-            </tr>
-        </table>
-        @foreach (var city in citiesForSelectedCountry)
+        @foreach (var city in cities)
         {
             <tr>
                 <td>@city.Name</td>
                 <td><button @onclick="(e => SelectCity(city.Name))">Select</button></td>
             </tr>
         }
+        </table>
         <div>
             <button @onclick="(e => ChangePageNumber(-1))" disabled="@(page == 1)">Previous</button>
             <p>Showing @CalculateShowing() of @selectedCountry.Cities</p>
@@ -43,35 +42,67 @@
     }
 }
 
+@if (selectedCity != null)
+{
+    if (measurements.Count > 0)
+    {
+        <h4>Showing the @measurements.Count most recent measurements from the last five years:</h4>
+        <table>
+            <tr>
+                <td>Location</td>
+                <td>Value</td>
+                <td>Date (Local)</td>
+            </tr>
+            @foreach (var measurement in measurements)
+            {
+                <tr>
+                    <td>@measurement.Location</td>
+                    <td>@measurement.Value @measurement.Unit</td>
+                    <td>@measurement.Date.Local.ToString("yyyy-MM-dd")</td>
+                </tr>
+            }
+        </table>
+
+    }
+    else
+    {
+        <p>Sorry, no measurements found for @selectedCity.Name within the last five years</p>
+    }
+}
+
 @code {
     Country selectedCountry;
-    List<City> citiesForSelectedCountry;
+    List<City> cities;
     City selectedCity;
     int page = 1;
+    List<Measurement> measurements;
 
     void SelectCountry(string code)
     {
         if (code.Equals("null"))
         {
             selectedCountry = null;
-            citiesForSelectedCountry = null;
+            cities = null;
         }
         else
         {
             selectedCountry = CountryService.GetAllCountries().First(c => c.Code.Equals(code));
-            citiesForSelectedCountry = CityService.GetCities(selectedCountry.Code, page);
+            cities = CityService.GetCities(selectedCountry.Code, page);
         }
+        selectedCity = null;
+        measurements = null;
     }
 
     void SelectCity(string name)
     {
-
+        selectedCity = cities.First(c => c.Name.Equals(name));
+        measurements = MeasurementService.GetMeasurements(selectedCountry.Code, selectedCity.Name);
     }
 
     void ChangePageNumber(int increment)
     {
         page += increment;
-        citiesForSelectedCountry = CityService.GetCities(selectedCountry.Code, page);
+        cities = CityService.GetCities(selectedCountry.Code, page);
     }
 
     string CalculateShowing()

@@ -1,7 +1,6 @@
 ﻿using AirQualityMonitor.Models;
 using AirQualityMonitor.Services.Helpers;
 using Microsoft.Extensions.Configuration;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 

@@ -6,7 +6,7 @@ namespace AirQualityMonitor.Services.Helpers
     public class LogHelper
     {
         private readonly Logger _logger = new LoggerConfiguration()
-                                                        .WriteTo.File("Logs/log.txt", rollingInterval: RollingInterval.Day)
+                                                        .WriteTo.File("Logs/log.txt", rollingInterval: RollingInterval.Day, retainedFileCountLimit: 28)
                                                         .CreateLogger();
         public void Info(string msg)
         {

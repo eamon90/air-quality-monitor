@@ -1,4 +1,6 @@
-﻿using System.Net.Http;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Net.Http;
 
 namespace AirQualityMonitor.Services.Helpers
 {
@@ -7,12 +9,17 @@ namespace AirQualityMonitor.Services.Helpers
         private readonly HttpClient _client = new HttpClient();
         private readonly LogHelper _log = new LogHelper();
 
-        public string Get<T>(string path)
+        public T Get<T>(string path)
         {
             _log.Info($"Attempting to GET {path}");
             var response = _client.GetAsync(path);
             var result = response.Result.Content.ReadAsStringAsync().Result;
-            return result;
+            return DeserializeJson<T>(JObject.Parse(result)["results"].ToString());
+        }
+
+        private T DeserializeJson<T>(string json)
+        {
+            return JsonConvert.DeserializeObject<T>(json);
         }
     }
 }

@@ -1,0 +1,22 @@
+﻿@using AirQualityMonitor.Models
+@using AirQualityMonitor.Services
+@inject CountryService CountryService
+
+<label for="countries">Select your country:</label>
+<select name="countries" id="countries" @onchange="(e => SelectCountry(e.Value))">
+    <option value="---">---</option>
+    @foreach (var country in CountryService.GetAllCountries())
+    {
+        <option value="@country.Code">@country.Name</option>
+    }
+</select>
+
+@code {
+    Country selectedCountry;
+
+    void SelectCountry(string code)
+    {
+        selectedCountry = CountryService.GetAllCountries().First(c => c.Code.Equals(code));
+        
+    }
+}

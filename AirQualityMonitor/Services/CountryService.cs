@@ -3,24 +3,26 @@ using AirQualityMonitor.Services.Helpers;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AirQualityMonitor.Services
 {
     public class CountryService
     {
-        private readonly IConfiguration _config;
+        public IConfiguration Configuration;
         private readonly ApiCaller _apiCaller;
 
         public CountryService(IConfiguration configuration, ApiCaller apiCaller)
         {
-            _config = configuration;
+            Configuration = configuration;
             _apiCaller = apiCaller;
         }
 
-        public void GetAllCountries()
+        public List<Country> GetAllCountries()
         {
-            var countries = _apiCaller.Get<List<Country>>(_config["Paths:GetAllCountries"]);
-            Console.WriteLine("something");
+            var countries = _apiCaller.Get<List<Country>>(Configuration["Paths:GetAllCountries"]);
+            countries = countries.FindAll(c => c.Name.Length > 2).OrderBy(c => c.Name).ToList();
+            return countries;
         }
     }
 }

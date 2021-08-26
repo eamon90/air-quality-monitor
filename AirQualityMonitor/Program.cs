@@ -1,4 +1,3 @@
-using AirQualityMonitor.Services;
 using AirQualityMonitor.Services.Helpers;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;

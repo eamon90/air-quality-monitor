@@ -1,3 +1,4 @@
+using AirQualityMonitor.Services;
 using AirQualityMonitor.Services.Helpers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -22,7 +23,7 @@ namespace AirQualityMonitor
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddTransient<ApiCaller>();
-            //services.AddTransient<CountryService>();
+            services.AddTransient<CountryService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -49,6 +50,7 @@ namespace AirQualityMonitor
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
+                endpoints.MapBlazorHub();
             });
         }
     }

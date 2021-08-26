@@ -1,11 +1,13 @@
 ﻿@page
-@using AirQualityMonitor.Services
+@using AirQualityMonitor.Components
 @model IndexModel
 @{
     ViewData["Title"] = "Home page";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <p>Check the air quality in your city</p>
+    @(await Html.RenderComponentAsync<FindYourCity>(RenderMode.ServerPrerendered))
 </div>
+
+<script src="_framework/blazor.server.js"></script>

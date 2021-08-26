@@ -1,9 +1,7 @@
 ﻿using AirQualityMonitor.Models;
 using AirQualityMonitor.Services.Helpers;
 using Microsoft.Extensions.Configuration;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace AirQualityMonitor.Services
 {
@@ -18,9 +16,11 @@ namespace AirQualityMonitor.Services
             _apiCaller = apiCaller;
         }
 
-        public List<City> GetAllCitiesFor(string countryCode)
+        public List<City> GetCities(string countryCode, int page)
         {
-            return _apiCaller.Get<List<City>>(string.Format(Configuration["Paths:GetCitiesForSelectedCountry"], countryCode));
+            var path = Configuration["Paths:GetCities"];
+            var limit = Configuration["Defaults:ResultLimit"];
+            return _apiCaller.Get<List<City>>(string.Format(path, countryCode, page, limit));
         }
     }
 }

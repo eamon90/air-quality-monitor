@@ -1,8 +1,10 @@
 ﻿@using AirQualityMonitor.Models
 @using AirQualityMonitor.Services
 @using Microsoft.AspNetCore.Components.Web
+@using Microsoft.Extensions.Configuration
 @inject CountryService CountryService
 @inject CityService CityService
+@inject IConfiguration Configuration
 
 <label for="countries">Select your country:</label>
 <select name="countries" id="countries" @onchange="(e => SelectCountry(e.Value.ToString()))">
@@ -15,15 +17,37 @@
 
 @if (selectedCountry != null)
 {
-    @foreach (var city in citiesForSelectedCountry)
+    if (selectedCountry.Cities > 0)
     {
-        <p>@city.Name</p>
+        <table>
+            <tr>
+                <td>Choose your city:</td>
+            </tr>
+        </table>
+        @foreach (var city in citiesForSelectedCountry)
+        {
+            <tr>
+                <td>@city.Name</td>
+                <td><button @onclick="(e => SelectCity(city.Name))">Select</button></td>
+            </tr>
+        }
+        <div>
+            <button @onclick="(e => ChangePageNumber(-1))" disabled="@(page == 1)">Previous</button>
+            <p>Showing @CalculateShowing() of @selectedCountry.Cities</p>
+            <button @onclick="(e => ChangePageNumber(1))" disabled="@CheckIfAtEndOfCityResults()">Next</button>
+        </div>
+    }
+    else
+    {
+        <p>Sorry, no cities found for @selectedCountry.Name</p>
     }
 }
 
 @code {
     Country selectedCountry;
     List<City> citiesForSelectedCountry;
+    City selectedCity;
+    int page = 1;
 
     void SelectCountry(string code)
     {
@@ -35,7 +59,41 @@
         else
         {
             selectedCountry = CountryService.GetAllCountries().First(c => c.Code.Equals(code));
-            citiesForSelectedCountry = CityService.GetAllCitiesFor(selectedCountry.Code);
+            citiesForSelectedCountry = CityService.GetCities(selectedCountry.Code, page);
         }
+    }
+
+    void SelectCity(string name)
+    {
+
+    }
+
+    void ChangePageNumber(int increment)
+    {
+        page += increment;
+        citiesForSelectedCountry = CityService.GetCities(selectedCountry.Code, page);
+    }
+
+    string CalculateShowing()
+    {
+        var lower = -9 + (page * int.Parse(Configuration["Defaults:ResultLimit"]));
+        if (lower > selectedCountry.Cities)
+        {
+            lower = selectedCountry.Cities;
+        }
+
+        var upper = page * int.Parse(Configuration["Defaults:ResultLimit"]);
+        if (upper > selectedCountry.Cities)
+        {
+            upper = selectedCountry.Cities;
+        }
+
+        return $"{lower} - {upper}";
+    }
+
+    bool CheckIfAtEndOfCityResults()
+    {
+        var resultNumber = page * int.Parse(Configuration["Defaults:ResultLimit"]);
+        return resultNumber >= selectedCountry.Cities;
     }
 }

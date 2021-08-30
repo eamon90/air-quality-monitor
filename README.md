@@ -1,6 +1,6 @@
-# air-quality-monitor
+# [air-quality-monitor](https://airqualitymonitor20210830195609.azurewebsites.net/)
 
-This repository contains the code for a web-based application that allows users to retreive air quality measurements from any city in the world, where measurements are available. 
+This repository contains the code for a web-based application that allows users to retreive air quality measurements from any city in the world, where measurements are available. The application has been hosted with Azure at the link above.
 
 ## Prerequisites
 The prerequisites for this project are simply:

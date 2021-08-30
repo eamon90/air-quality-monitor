@@ -73,3 +73,19 @@ body {
 .pagination-container {
     display: flex;
 }
+
+table, th, td {
+    border: 1px solid black;
+}
+
+th, td {
+    padding-left: 1em; 
+    padding-right: 1em; 
+}
+
+.table-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center
+}

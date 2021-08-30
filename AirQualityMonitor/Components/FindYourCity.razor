@@ -22,15 +22,15 @@
     {
         <h2>Choose your city:</h2>
         <table>
-        @foreach (var city in cities)
-        {
-            <tr>
-                <td>@city.Name</td>
-                <td><button @onclick="(e => SelectCity(city.Name))">Select</button></td>
-            </tr>
-        }
+            @foreach (var city in cities)
+            {
+                <tr>
+                    <td>@city.Name</td>
+                    <td><button @onclick="(e => SelectCity(city.Name))">Select</button></td>
+                </tr>
+            }
         </table>
-        <div>
+        <div class="pagination-container">
             <button @onclick="(e => ChangePageNumber(-1))" disabled="@(page == 1)">Previous</button>
             <p>Showing @CalculateShowing() of @selectedCountry.Cities</p>
             <button @onclick="(e => ChangePageNumber(1))" disabled="@CheckIfAtEndOfCityResults()">Next</button>
@@ -44,30 +44,46 @@
 
 @if (selectedCity != null)
 {
+<div>
+    <h2>Select your timeframe:</h2>
+    <div>
+        <label for="measurements-from">From</label>
+        <input type="date" id="measurements-from" @onchange="(e => UpdateFrom(e.Value.ToString()))" min="2000-01-01" max="@DateTime.Today.ToString("yyyy-MM-dd")" value="@from.ToString("yyyy-MM-dd")" />
+        <label for="measurements-to">To</label>
+        <input type="date" id="measurements-to" @onchange="(e => UpdateTo(e.Value.ToString()))" min="2000-01-01" max="@DateTime.Today.ToString("yyyy-MM-dd")" value="@to.ToString("yyyy-MM-dd")" />
+        <button @onclick="(e => GetMeasurements())">Update results</button>
+    </div>
+    <label for="number-of-results">Results</label>
+    <select name="number-of-measurements" id="number-of-measurements" @onchange="(e => UpdateMeasurementLimit(int.Parse(e.Value.ToString())))" value="10">
+        <option value="1">Most recent</option>
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="40">40</option>
+    </select>
+</div>
+    
     if (measurements.Count > 0)
-    {
-        <h4>Showing the @measurements.Count most recent measurements from the last five years:</h4>
-        <table>
-            <tr>
-                <td>Location</td>
-                <td>Value</td>
-                <td>Date (Local)</td>
-            </tr>
-            @foreach (var measurement in measurements)
-            {
+        {
+            <table>
                 <tr>
-                    <td>@measurement.Location</td>
-                    <td>@measurement.Value @measurement.Unit</td>
-                    <td>@measurement.Date.Local.ToString("yyyy-MM-dd")</td>
+                    <td>Location</td>
+                    <td>Value</td>
+                    <td>Date (Local)</td>
                 </tr>
-            }
-        </table>
-
-    }
-    else
-    {
-        <p>Sorry, no measurements found for @selectedCity.Name within the last five years</p>
-    }
+                @foreach (var measurement in measurements)
+                {
+                    <tr>
+                        <td>@measurement.Location</td>
+                        <td>@measurement.Value @measurement.Unit</td>
+                        <td>@measurement.Date.Local.ToString("yyyy-MM-dd")</td>
+                    </tr>
+                }
+            </table>
+        }
+        else
+        {
+            <p>Sorry, no measurements found for @selectedCity.Name within your chosen timeframe</p>
+        }
 }
 
 @code {
@@ -76,27 +92,34 @@
     City selectedCity;
     int page = 1;
     List<Measurement> measurements;
+    DateTime from = DateTime.Today.AddYears(-5);
+    DateTime to = DateTime.Today;
+    int measurementLimit;
 
     void SelectCountry(string code)
     {
-        if (code.Equals("null"))
-        {
-            selectedCountry = null;
-            cities = null;
-        }
-        else
+        RevertToDefaults();
+        if (!code.Equals("null"))
         {
             selectedCountry = CountryService.GetAllCountries().First(c => c.Code.Equals(code));
-            cities = CityService.GetCities(selectedCountry.Code, page);
+            cities = CityService.GetCities(selectedCountry.Code, page).FindAll(c => c.Name != "unused" && c.Name != "N/A");
         }
+    }
+
+    void RevertToDefaults()
+    {
+        selectedCountry = null;
+        cities = new List<City>();
         selectedCity = null;
-        measurements = null;
+        page = 1;
+        measurements = new List<Measurement>();
+        measurementLimit = int.Parse(Configuration["Defaults:ResultLimit"]);
     }
 
     void SelectCity(string name)
     {
         selectedCity = cities.First(c => c.Name.Equals(name));
-        measurements = MeasurementService.GetMeasurements(selectedCountry.Code, selectedCity.Name);
+        GetMeasurements();
     }
 
     void ChangePageNumber(int increment)
@@ -126,5 +149,26 @@
     {
         var resultNumber = page * int.Parse(Configuration["Defaults:ResultLimit"]);
         return resultNumber >= selectedCountry.Cities;
+    }
+
+    void GetMeasurements()
+    {
+        measurements = MeasurementService.GetMeasurements(selectedCountry.Code, selectedCity.Name, from, to, measurementLimit);
+    }
+
+    void UpdateFrom(string newFrom)
+    {
+        from = DateTime.Parse(newFrom);
+    }
+
+    void UpdateTo(string newTo)
+    {
+        to = DateTime.Parse(newTo);
+    }
+
+    void UpdateMeasurementLimit(int newMeasurementLimit)
+    {
+        measurementLimit = newMeasurementLimit;
+        GetMeasurements();
     }
 }

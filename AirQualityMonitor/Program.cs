@@ -9,12 +9,12 @@ namespace AirQualityMonitor
     {
         private static readonly LogHelper _log = new LogHelper();
 
-        public static void Main()
+        public static void Main(string[] args)
         {
             _log.Info("Starting AirQualityMonitor web app");
             try
             {
-                CreateHostBuilder().Build().Run();
+                CreateHostBuilder(args).Build().Run();
             }
             catch (Exception ex)
             {
@@ -23,8 +23,8 @@ namespace AirQualityMonitor
             }
         }
 
-        public static IHostBuilder CreateHostBuilder() =>
-            Host.CreateDefaultBuilder()
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();

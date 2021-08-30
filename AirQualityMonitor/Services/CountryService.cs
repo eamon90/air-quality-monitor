@@ -17,9 +17,9 @@ namespace AirQualityMonitor.Services
             _apiCaller = apiCaller;
         }
 
-        public List<Country> GetAllCountries()
+        public List<Country> GetCountries()
         {
-            var countries = _apiCaller.Get<List<Country>>(Configuration["Paths:GetAllCountries"]);
+            var countries = _apiCaller.Get<List<Country>>(Configuration["Paths:GetCountries"]);
             countries = countries.FindAll(c => c.Name.Length > 2).OrderBy(c => c.Name).ToList();
             return countries;
         }

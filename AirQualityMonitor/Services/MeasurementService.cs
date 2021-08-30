@@ -17,13 +17,10 @@ namespace AirQualityMonitor.Services
             _apiCaller = apiCaller;
         }
 
-        public List<Measurement> GetMeasurements(string countryCode, string city)
+        public List<Measurement> GetMeasurements(string countryCode, string city, DateTime from, DateTime to, int limit)
         {
             var path = Configuration["Paths:GetMeasurements"];
-            var from = DateTime.Today.AddYears(-int.Parse(Configuration["Defaults:MaxMeasurementWindowInYears"])).ToString("yyyy-MM-dd");
-            var to = DateTime.Today.ToString("yyyy-MM-dd");
-            var limit = Configuration["Defaults:ResultLimit"];
-            path = string.Format(path, countryCode, city, from, to, limit);
+            path = string.Format(path, countryCode, city, from.ToString("yyyy-MM-dd"), to.ToString("yyyy-MM-dd"), limit);
             return _apiCaller.Get<List<Measurement>>(path);
         }
     }
